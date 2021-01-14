@@ -4,7 +4,7 @@ import requests
 from requests import Request
 from requests.auth import AuthBase
 
-from .constants import VERIFY_TOKEN
+from cloudflare_ddns.constants import IP_API_URL_IPV4, IP_API_URL_IPV6
 
 DURATION_REGEX = re.compile(
     r"((?P<days>\d+?) ?(days|day|D|d) ?)?"
@@ -53,3 +53,9 @@ class BearerAuth(AuthBase):
         """Attach the Authorization header to the request."""
         r.headers["Authorization"] = f"Bearer {self.token}"
         return r
+
+
+def get_ip(ipv6: bool) -> str:
+    """Return the host public IP as detected by ipify.org."""
+    r = requests.get(IP_API_URL_IPV4 if not ipv6 else IP_API_URL_IPV6)
+    return r.text

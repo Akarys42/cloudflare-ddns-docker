@@ -13,16 +13,15 @@ log = logging.getLogger("ddns")
 @click.option('--delay', '-d', default=DEFAULT_DELAY, show_default=True)
 @click.option('--token', '-k', prompt="Enter your Cloudflare Token", hide_input=True, show_envvar=True)
 @click.option('-v', '--verbose', is_flag=True, default=False)
-@click.option('--ipv6/--ipv4', '-6/-4')
 @click.argument("domain", nargs=-1)
-def start(delay: str, token: str, verbose: int, domain: Tuple[str], ipv6: bool) -> None:
+def start(delay: str, token: str, verbose: int, domain: Tuple[str]) -> None:
     """Main application entrypoint."""
     logging.basicConfig(
         format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
         level=logging.DEBUG if verbose else logging.INFO
     )
 
-    ApplicationJob(delay, token, domain, ipv6).launch()
+    ApplicationJob(delay, token, domain).launch()
 
 
 # Main entrypoint
