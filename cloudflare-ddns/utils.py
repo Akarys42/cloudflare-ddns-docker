@@ -1,5 +1,11 @@
 import re
 
+import requests
+from requests import Request
+from requests.auth import AuthBase
+
+from .constants import VERIFY_TOKEN
+
 DURATION_REGEX = re.compile(
     r"((?P<days>\d+?) ?(days|day|D|d) ?)?"
     r"((?P<hours>\d+?) ?(hours|hour|H|h) ?)?"
@@ -37,5 +43,23 @@ def parse_duration(duration: str) -> int:
     return duration
 
 
-def validate_bearer(bearer: str) -> None:
-    ...
+class BearerAuth(AuthBase):
+    """Bearer based authentication."""
+
+    def __init__(self, token: str) -> None:
+        self.token = token
+
+    def __call__(self, r: Request) -> Request:
+        """Attach the Authorization header to the request."""
+        r.headers["Authorization"] = f"Bearer {self.token}"
+        return r
+
+
+def validate_bearer(token: str) -> None:
+    """Utility method to validate a CF bearer token."""
+    bearer = BearerAuth(token)
+    r = requests.get(VERIFY_TOKEN, auth=bearer)
+
+    if not r.json()["success"]:
+        error_message = ' / '.join(error["message"] for error in r.json()["errors"])
+        raise ValueError(error_message)
