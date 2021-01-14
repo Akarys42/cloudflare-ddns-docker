@@ -53,13 +53,3 @@ class BearerAuth(AuthBase):
         """Attach the Authorization header to the request."""
         r.headers["Authorization"] = f"Bearer {self.token}"
         return r
-
-
-def validate_bearer(token: str) -> None:
-    """Utility method to validate a CF bearer token."""
-    bearer = BearerAuth(token)
-    r = requests.get(VERIFY_TOKEN, auth=bearer)
-
-    if not r.json()["success"]:
-        error_message = ' / '.join(error["message"] for error in r.json()["errors"])
-        raise ValueError(error_message)
