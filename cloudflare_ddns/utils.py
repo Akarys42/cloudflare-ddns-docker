@@ -1,10 +1,9 @@
 import re
 
 import requests
-from requests import Request, Response, codes, HTTPError
+from cloudflare_ddns.constants import BASE_ENDPOINT, IP_API_URL_IPV4, IP_API_URL_IPV6
+from requests import HTTPError, Request, Response, codes
 from requests.auth import AuthBase
-
-from cloudflare_ddns.constants import IP_API_URL_IPV4, IP_API_URL_IPV6, BASE_ENDPOINT
 
 DURATION_REGEX = re.compile(
     r"((?P<days>\d+?) ?(days|day|D|d) ?)?"

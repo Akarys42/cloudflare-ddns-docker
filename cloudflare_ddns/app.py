@@ -4,10 +4,9 @@ from dataclasses import dataclass
 from typing import List, Tuple
 
 import requests
+from cloudflare_ddns.constants import ACCEPTED_RECORDS, LIST_DNS, LIST_ZONES, PATCH_DNS, VERIFY_TOKEN
+from cloudflare_ddns.utils import BearerAuth, CloudflareHTTPError, check_status, get_ip, parse_duration
 from requests import HTTPError
-
-from cloudflare_ddns.constants import ACCEPTED_RECORDS, LIST_DNS, LIST_ZONES, VERIFY_TOKEN, PATCH_DNS
-from cloudflare_ddns.utils import BearerAuth, parse_duration, get_ip, check_status, CloudflareHTTPError
 
 log = logging.getLogger("ddns")
 

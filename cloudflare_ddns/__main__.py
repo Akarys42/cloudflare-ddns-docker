@@ -1,8 +1,7 @@
 import logging
-
-import click
 from typing import Tuple
 
+import click
 from cloudflare_ddns.app import ApplicationJob
 from cloudflare_ddns.constants import DEFAULT_DELAY
 
