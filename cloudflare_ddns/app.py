@@ -1,7 +1,7 @@
 import logging
 import threading
 from dataclasses import dataclass
-from typing import List, Tuple
+from typing import List
 
 import requests
 from cloudflare_ddns.constants import ACCEPTED_RECORDS, LIST_DNS, LIST_ZONES, PATCH_DNS, VERIFY_TOKEN
@@ -32,7 +32,7 @@ class Domain:
 class ApplicationJob(threading.Thread):
     """Main application class."""
 
-    def __init__(self, raw_delay: str, token: str, raw_domains: Tuple[str]):
+    def __init__(self, raw_delay: str, token: str, raw_domains: List[str]):
         super().__init__()
 
         self.stop_signal = threading.Event()

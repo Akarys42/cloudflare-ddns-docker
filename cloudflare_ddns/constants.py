@@ -1,6 +1,10 @@
 # App defaults
 DEFAULT_DELAY = "5 minutes"
 
+# App constants
+BASE_ENV_VAR = "CF_DDNS"
+DOMAINS_ENV_VAR = BASE_ENV_VAR + "_DOMAINS"
+
 # Endpoints
 BASE_ENDPOINT = "https://api.cloudflare.com/client/v4/"
 
