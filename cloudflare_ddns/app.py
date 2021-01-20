@@ -13,6 +13,16 @@ log = logging.getLogger("ddns")
 
 @dataclass
 class Domain:
+    """
+    Dataclass representing one domain record to update.
+
+    Args:
+        domain: The domain name.
+        record_type: The type of the record to update.
+        zone: The ID of the Cloudflare zone it belongs to.
+        id: The Cloudflare ID of this record.
+    """
+
     domain: str
     record_type: str
     zone: str
@@ -20,6 +30,8 @@ class Domain:
 
 
 class ApplicationJob(threading.Thread):
+    """Main application class."""
+
     def __init__(self, raw_delay: str, token: str, raw_domains: Tuple[str]):
         super().__init__()
 
@@ -35,11 +47,13 @@ class ApplicationJob(threading.Thread):
         self.raw_delay = raw_delay
 
     def launch(self) -> None:
+        """Launch the application by validating arguments and starting the thread."""
         self.validate_arguments()
         log.debug("Starting job.")
         self.start()
 
     def run(self) -> None:
+        """Main application function, in charge of controlling the periodic updates."""
         log.debug("Parsing domains.")
         self.parse_domains()
         log.debug(f"Using domains: {', '.join(f'{domain.record_type}:{domain.domain}' for domain in self.domains)}")
@@ -68,6 +82,7 @@ class ApplicationJob(threading.Thread):
                 log.exception(f"Error while updating records. Retrying in {self.delay} seconds.")
 
     def update_records(self) -> None:
+        """Update all the registered records."""
         log.info("Starting record update.")
         for record in self.domains:
             log.debug(f"Updating record for {record.domain}.")
@@ -81,6 +96,7 @@ class ApplicationJob(threading.Thread):
         log.info("Successfully updated records.")
 
     def parse_domains(self) -> None:
+        """Parse the domain in `raw_domains` and populate the `domains` array with `Domain` objects."""
         found_domains = {}
 
         for zone_json in check_status(requests.get(LIST_ZONES, auth=self.auth)).json()["result"]:
@@ -139,7 +155,8 @@ class ApplicationJob(threading.Thread):
                     log.info(f"Exiting with code 65.")
                     exit(65)
 
-    def validate_arguments(self):
+    def validate_arguments(self) -> None:
+        """Validate the provided arguments."""
         failed = False
 
         if not self.raw_domains:

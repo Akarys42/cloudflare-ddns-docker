@@ -62,7 +62,6 @@ def get_ip(ipv6: bool) -> str:
 
 class CloudflareHTTPError(HTTPError):
     """HTTPError coming from a Cloudflare endpoint."""
-    pass
 
 
 def check_status(r: Response) -> Response:
