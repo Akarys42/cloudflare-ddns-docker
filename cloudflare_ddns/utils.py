@@ -1,10 +1,10 @@
 import re
 
 import requests
-from requests import Request
+from requests import Request, Response, codes, HTTPError
 from requests.auth import AuthBase
 
-from cloudflare_ddns.constants import IP_API_URL_IPV4, IP_API_URL_IPV6
+from cloudflare_ddns.constants import IP_API_URL_IPV4, IP_API_URL_IPV6, BASE_ENDPOINT
 
 DURATION_REGEX = re.compile(
     r"((?P<days>\d+?) ?(days|day|D|d) ?)?"
@@ -57,5 +57,23 @@ class BearerAuth(AuthBase):
 
 def get_ip(ipv6: bool) -> str:
     """Return the host public IP as detected by ipify.org."""
-    r = requests.get(IP_API_URL_IPV4 if not ipv6 else IP_API_URL_IPV6)
+    r = check_status(requests.get(IP_API_URL_IPV4 if not ipv6 else IP_API_URL_IPV6))
     return r.text
+
+
+class CloudflareHTTPError(HTTPError):
+    """HTTPError coming from a Cloudflare endpoint."""
+    pass
+
+
+def check_status(r: Response) -> Response:
+    """Check the status code of a response and return it."""
+    if not r.status_code == codes.ok:
+        if r.url.startswith(BASE_ENDPOINT) and not r.json()["success"]:
+            errors = "\n".join(f"{err['code']}: {err['message']}" for err in r.json()["errors"])
+
+            raise CloudflareHTTPError(f"{r.status_code} {r.reason} while querying {r.url}: {errors}")
+        else:
+            r.raise_for_status()
+
+    return r

@@ -1,11 +1,13 @@
 import logging
 import threading
 from dataclasses import dataclass
-from typing import Dict, List, Tuple
+from typing import List, Tuple
 
 import requests
+from requests import HTTPError
+
 from cloudflare_ddns.constants import ACCEPTED_RECORDS, LIST_DNS, LIST_ZONES, VERIFY_TOKEN, PATCH_DNS
-from cloudflare_ddns.utils import BearerAuth, parse_duration, get_ip
+from cloudflare_ddns.utils import BearerAuth, parse_duration, get_ip, check_status, CloudflareHTTPError
 
 log = logging.getLogger("ddns")
 
@@ -46,6 +48,15 @@ class ApplicationJob(threading.Thread):
         log.info(f"Starting app. Records will be updated every {self.delay} seconds.")
         try:
             self.update_records()
+
+        except HTTPError as e:
+            log.error(
+                f"HTTP error {'from Cloudflare' if isinstance(e, CloudflareHTTPError) else ''} "
+                f"while updating records for the first time, aborting."
+            )
+            log.error(e)
+            log.info("Exiting with code 70.")
+
         except Exception:
             log.exception("Error while updating records for the first time, aborting.")
             log.info("Exiting with code 70.")
@@ -61,21 +72,23 @@ class ApplicationJob(threading.Thread):
         log.info("Starting record update.")
         for record in self.domains:
             log.debug(f"Updating record for {record.domain}.")
-            requests.patch(
+
+            check_status(requests.patch(
                 PATCH_DNS.format(zone_identifier=record.zone, identifier=record.id),
                 json={"content": get_ip(record.record_type == 'AAAA')},
                 auth=self.auth
-            ).raise_for_status()
+            ))
+
         log.info("Successfully updated records.")
 
     def parse_domains(self) -> None:
         found_domains = {}
 
-        for zone_json in requests.get(LIST_ZONES, auth=self.auth).json()["result"]:
-            for record_json in requests.get(
+        for zone_json in check_status(requests.get(LIST_ZONES, auth=self.auth)).json()["result"]:
+            for record_json in check_status(requests.get(
                     LIST_DNS.format(zone_identifier=zone_json["id"]),
                     auth=self.auth
-            ).json()["result"]:
+            )).json()["result"]:
                 if record_json["type"] in ACCEPTED_RECORDS:
                     domain = Domain(
                         record_json["name"],
