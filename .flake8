@@ -1,5 +1,5 @@
 [flake8]
-max-line-length=110
+max-line-length=120
 docstring-convention=all
 import-order-style=pycharm
 exclude=constants.py,__pycache__,.cache,.git,.md,.svg,.png,tests,venv,.venv
@@ -18,3 +18,5 @@ ignore=
     ANN002,ANN003,ANN101,ANN102,ANN204,ANN206
     # Whitespace Before
     E203
+    # F-strings
+    F541
