@@ -46,6 +46,8 @@ class ApplicationJob(threading.Thread):
         self.raw_domains = raw_domains
         self.raw_delay = raw_delay
 
+        self.session = requests.session()
+
     def launch(self) -> None:
         """Launch the application by validating arguments and starting the thread."""
         self.validate_arguments()
@@ -87,9 +89,9 @@ class ApplicationJob(threading.Thread):
         for record in self.domains:
             log.debug(f"Updating record for {record.domain}.")
 
-            check_status(requests.patch(
+            check_status(self.session.patch(
                 PATCH_DNS.format(zone_identifier=record.zone, identifier=record.id),
-                json={"content": get_ip(record.record_type == 'AAAA')},
+                json={"content": get_ip(record.record_type == 'AAAA', self.session)},
                 auth=self.auth
             ))
 
@@ -99,8 +101,8 @@ class ApplicationJob(threading.Thread):
         """Parse the domain in `raw_domains` and populate the `domains` array with `Domain` objects."""
         found_domains = {}
 
-        for zone_json in check_status(requests.get(LIST_ZONES, auth=self.auth)).json()["result"]:
-            for record_json in check_status(requests.get(
+        for zone_json in check_status(self.session.get(LIST_ZONES, auth=self.auth)).json()["result"]:
+            for record_json in check_status(self.session.get(
                     LIST_DNS.format(zone_identifier=zone_json["id"]),
                     auth=self.auth
             )).json()["result"]:
@@ -186,7 +188,7 @@ class ApplicationJob(threading.Thread):
 
     def validate_bearer(self) -> None:
         """Utility method to validate a CF bearer token."""
-        r = requests.get(VERIFY_TOKEN, auth=self.auth)
+        r = self.session.get(VERIFY_TOKEN, auth=self.auth)
 
         if not r.json()["success"]:
             error_message = ' / '.join(error["message"] for error in r.json()["errors"])

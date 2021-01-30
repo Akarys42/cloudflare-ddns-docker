@@ -54,9 +54,9 @@ class BearerAuth(AuthBase):
         return r
 
 
-def get_ip(ipv6: bool) -> str:
+def get_ip(ipv6: bool, session: requests.Session) -> str:
     """Return the host public IP as detected by ipify.org."""
-    r = check_status(requests.get(IP_API_URL_IPV4 if not ipv6 else IP_API_URL_IPV6))
+    r = check_status(session.get(IP_API_URL_IPV4 if not ipv6 else IP_API_URL_IPV6))
     return r.text
 
 
