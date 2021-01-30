@@ -1,6 +1,7 @@
 import logging
 import threading
 from dataclasses import dataclass
+from signal import SIGINT, SIGTERM, signal
 from typing import List
 
 import requests
@@ -51,6 +52,9 @@ class ApplicationJob(threading.Thread):
     def launch(self) -> None:
         """Launch the application by validating arguments and starting the thread."""
         self.validate_arguments()
+        log.debug("Registering exit hooks.")
+        signal(SIGINT, self.exit)
+        signal(SIGTERM, self.exit)
         log.debug("Starting job.")
         self.start()
 
@@ -193,3 +197,9 @@ class ApplicationJob(threading.Thread):
         if not r.json()["success"]:
             error_message = ' / '.join(error["message"] for error in r.json()["errors"])
             raise ValueError(error_message)
+
+    def exit(self, *_) -> None:
+        """Gracefully exit the application."""
+        log.info("Exiting application.")
+        self.stop_signal.set()
+        self.join()
