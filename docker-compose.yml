@@ -1,0 +1,8 @@
+version: "3.7"
+services:
+  cloudflare-ddns:
+    image: ghcr.io/akarys42/cloudflare-ddns-docker
+    container_name: ddns_client
+    enviroment:
+      CF_DDNS_DOMAINS: "mydomain.cat *.mydomain.cat mail.mydomain.cat" 
+      CF_DDNS_TOKEN: "${token}"

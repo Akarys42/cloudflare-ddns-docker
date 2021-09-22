@@ -1,0 +1,8 @@
+## Development docker-compose
+version: "3.7"
+services:
+  cloudflare-ddns:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: cloudflare-ddns

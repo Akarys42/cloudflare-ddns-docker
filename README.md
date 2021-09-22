@@ -35,6 +35,38 @@ docker pull ghcr.io/akarys42/cloudflare-ddns-docker
 
 There are no special requirements when building this container! Simply use `docker build` in this folder.
 
+#### For docker command
+
+You can use:
+```
+docker run --name ddns_client --rm \
+-d ghcr.io/akarys42/cloudflare-ddns-docker \
+-k ${token} \
+mydomain.cat *.mydomain.cat mail.mydomain.cat
+```
+or
+```
+docker run --name ddns_client --rm \
+-e CF_DDNS_DOMAINS="mydomain.cat *.mydomain.cat mail.mydomain.cat" \
+-e CF_DDNS_TOKEN="${token}" \
+-d ghcr.io/akarys42/cloudflare-ddns-docker 
+```
+(replacing ${token} by your Cloudflare DNS Edit Permission Token)
+
+#### For docker-compose users
+
+```
+version: "3.7"
+services:
+  cloudflare-ddns:
+    image: ghcr.io/akarys42/cloudflare-ddns-docker
+    container_name: ddns_client
+    enviroment:
+      CF_DDNS_DOMAINS: "mydomain.cat *.mydomain.cat mail.mydomain.cat" 
+      CF_DDNS_TOKEN: "${token}"
+```
+(replacing ${token} again)
+
 ### Running on the Host
 
 In order to run this project on the host, you'll need Python > 3.8, and an environment containing
