@@ -114,7 +114,7 @@ class ApplicationJob(threading.Thread):
                     domain = Domain(
                         record_json["name"],
                         record_json["type"],
-                        record_json["zone_id"],
+                        zone_json["id"],
                         record_json["id"]
                     )
                     found_domains[f'{record_json["name"]}-{record_json["type"]}'] = domain

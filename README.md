@@ -50,7 +50,7 @@ Feel free to select the method fitting your setup the best!
 
 ### Getting a Cloudflare Token
 
-The first step will be to create an API token with the following scopes:
+The first step will be to create a user API token with the following scopes:
 - `Zone:Read`
 - `DNS:Edit`
 
